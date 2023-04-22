@@ -4,5 +4,5 @@ ARG HOST
 WORKDIR /www
 RUN apk update
 RUN apk add openjdk11
-RUN apk add git && git clone https://github.com/ATer-Oganisyan/otus-profile.git && cd otus-profile && jar xf mysql.jar && javac ProfileServer.java && apk del git && rm ProfileServer.java
+RUN apk add git && git clone https://github.com/ATer-Oganisyan/otus-profile.git && cd otus-profile && javac ProfileServer.java && apk del git && rm ProfileServer.java
 ENTRYPOINT java -classpath /www/otus-profile ProfileServer $HOST v1
