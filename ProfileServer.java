@@ -102,12 +102,10 @@ public class ProfileServer {
     }
 
     static private HttpResponse<String> getUserById(String id) {
-        String body = "id:" + id;
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(scheme + userCrudHostServiceHost + "/get-by-id"))
+                .uri(URI.create(scheme + userCrudHostServiceHost + "/get-by-id?id=" + id))
                 .timeout(Duration.ofMinutes(1))
                 .header("Content-Type", "plain/text")
-                .POST(HttpRequest.BodyPublishers.ofString(body))
                 .build();
         HttpResponse<String> response;
         try {
