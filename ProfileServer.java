@@ -147,6 +147,15 @@ public class ProfileServer {
         }
     }
 
+    static private void printLogs(Collection<List<String>> headers) {
+        System.out.println("printLogs");
+        for (List<String> headerList : headers) {
+            for (String header : headerList) {
+                System.out.println(header);
+            }
+        }
+    }
+
     static private void routeGetUser(HttpExchange t) throws IOException {
         System.out.println("Route getUser");
         Headers headers = t.getRequestHeaders();
