@@ -24,6 +24,7 @@ public class ProfileServer {
     private static HttpClient client = HttpClient.newBuilder().build();
     private static String sessionServiceHost = "";
     private static String userCrudHostServiceHost = "";
+    private static String scheme = "http://";
 
     private static Map<String, Map<String, String>> sessions = new HashMap<>();
 
@@ -75,7 +76,7 @@ public class ProfileServer {
     static private String getUserByLogin(String login) {
         String body = "login:" + login;
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(userCrudHostServiceHost + "/get-by-login"))
+                .uri(URI.create(scheme + userCrudHostServiceHost + "/get-by-login"))
                 .timeout(Duration.ofMinutes(1))
                 .header("Content-Type", "plain/text")
                 .POST(HttpRequest.BodyPublishers.ofString(body))
@@ -100,7 +101,7 @@ public class ProfileServer {
     static private HttpResponse<String> getUserById(String id) {
         String body = "id:" + id;
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(userCrudHostServiceHost + "/get-by-id"))
+                .uri(URI.create(scheme + userCrudHostServiceHost + "/get-by-id"))
                 .timeout(Duration.ofMinutes(1))
                 .header("Content-Type", "plain/text")
                 .POST(HttpRequest.BodyPublishers.ofString(body))
@@ -148,18 +149,21 @@ public class ProfileServer {
         String cookieString = String.join(";", t.getRequestHeaders().get("cookie"));
         Map<String, String> cookie = postToMap(new StringBuilder(cookieString));
         String token = cookie.get("token");
-        String userId = postToMap(buf(t.getRequestBody())).get("id");
+        String userId = queryToMap(t.getRequestURI().getQuery()).get("id");
         String r;
         String body = "token:" + token;
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(sessionServiceHost + "/session"))
+                .uri(URI.create(scheme + sessionServiceHost + "/session"))
                 .timeout(Duration.ofMinutes(1))
                 .header("Content-Type", "plain/text")
                 .POST(HttpRequest.BodyPublishers.ofString(body))
                 .build();
         HttpResponse<String> response;
+        System.out.println("HttpResponse<String> response;");
         try {
+            System.out.println("try");
             response = client.send(request, BodyHandlers.ofString());
+            System.out.println("response = client.send(request, BodyHandlers.ofString());");
         } catch (IOException e) {
             System.out.println("IOException");
             throw new RuntimeException();
@@ -168,6 +172,7 @@ public class ProfileServer {
             throw new RuntimeException();
         }
 
+        System.out.println("if (response.statusCode() == 403)");
         if (response.statusCode() == 403) {
             System.out.println("error:403");
             r = "session is not found";
@@ -178,6 +183,7 @@ public class ProfileServer {
             return;
         }
 
+        System.out.println("Map<String, String> userInfo = postToMap(new StringBuilder(response.body()));");
         Map<String, String> userInfo = postToMap(new StringBuilder(response.body()));
         if (!"admin".equals(userInfo.get("role")) && !userId.equals(userInfo.get("id"))) {
             System.out.println("error:403");
@@ -189,6 +195,7 @@ public class ProfileServer {
             return;
         }
 
+        System.out.println("if (resp.statusCode() == 200) {");
         HttpResponse<String> resp = getUserById(userId);
         if (resp.statusCode() == 200) {
             r = resp.body();
@@ -198,6 +205,8 @@ public class ProfileServer {
             os.close();
             return;
         }
+
+        System.out.println("if (resp.statusCode() == 404) {");
         if (resp.statusCode() == 404) {
             r = "user is not found";
             t.sendResponseHeaders(404, r.length());
@@ -224,7 +233,7 @@ public class ProfileServer {
         String pwd = getMd5(q.get("pwd"));
         String body = "name:" + name + "\nage:" + age + "\nlogin:" + login + "\npwd:" + pwd;
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(userCrudHostServiceHost + "/user/create"))
+                .uri(URI.create(scheme + userCrudHostServiceHost + "/user/create"))
                 .timeout(Duration.ofMinutes(1))
                 .header("Content-Type", "plain/text")
                 .POST(HttpRequest.BodyPublishers.ofString(body))

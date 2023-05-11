@@ -19,4 +19,4 @@ Enjoy :)
 
 
 # To build container run: 
-docker build -t arsenteroganisyan/profile-service:v2 /Users/arsen/otus-profile --no-cache --platform linux/amd64
+docker build -t arsenteroganisyan/profile-service:v3 /Users/arsen/otus-profile --no-cache --platform linux/amd64
