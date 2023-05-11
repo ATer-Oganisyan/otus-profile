@@ -148,7 +148,7 @@ public class ProfileServer {
 
     static private void routeGetUser(HttpExchange t) throws IOException {
         System.out.println("Route getUser");
-        String cookieString = String.join(";", t.getRequestHeaders().get("cookie"));
+        String cookieString = String.join(";", t.getRequestHeaders().get("Cookie"));
         Map<String, String> cookie = postToMap(new StringBuilder(cookieString));
         String token = cookie.get("token");
         String userId = queryToMap(t.getRequestURI().getQuery()).get("id");
@@ -187,6 +187,12 @@ public class ProfileServer {
 
         System.out.println("Map<String, String> userInfo = postToMap(new StringBuilder(response.body()));");
         Map<String, String> userInfo = postToMap(new StringBuilder(response.body()));
+        System.out.println("session server response body: " + response.body());
+        System.out.println("userId = " + userId);
+        System.out.println("role = " + userInfo.get("role"));
+        System.out.println("id = " + userInfo.get("id"));
+        System.out.println("id == userId: " + (userId.equals(userInfo.get("id"))));
+        System.out.println("role == admin: " + ("admin".equals(userInfo.get("role"))));
         if (!"admin".equals(userInfo.get("role")) && !userId.equals(userInfo.get("id"))) {
             System.out.println("error:403");
             r = "not permitted";
@@ -301,6 +307,9 @@ public class ProfileServer {
                 .replaceAll("=", ":")
                 .replaceAll(" ", "")
                 .replaceAll(";", "\n")
+                .replaceAll(",", "\n")
+                .replaceAll("{", "")
+                .replaceAll("}", "")
                 .split("\n");
         Map<String, String> result = new HashMap<>();
         for (String part: parts) {
