@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: profile-service
-        image: arsenteroganisyan/profile-service:v6
+        image: arsenteroganisyan/profile-service:v7
         ports:
         - containerPort: 8000
         env:

@@ -325,6 +325,7 @@ public class ProfileServer {
     }
 
     static private Map<String, String> postToMap(StringBuilder body){
+        System.out.println("postToMap");
         String[] parts = body
                 .toString()
                 .replaceAll("\r", "")
@@ -335,12 +336,16 @@ public class ProfileServer {
                 .replaceAll("{", "")
                 .replaceAll("}", "")
                 .split("\n");
+        System.out.println("parts.size = " + parts.length);
         Map<String, String> result = new HashMap<>();
         for (String part: parts) {
             String[] keyVal = part.split(":");
+            System.out.println("keyVal.size = " + keyVal.length);
             result.put(keyVal[0], keyVal[1]);
+            System.out.println("keyVal[0] = " + keyVal[0]);
+            System.out.println("keyVal[1] = " + keyVal[1]);
         }
-        System.out.println("buf: " + result.toString());
+        System.out.println("postToMap result: " + result.toString());
         return result;
     }
 
