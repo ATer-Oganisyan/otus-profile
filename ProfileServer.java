@@ -332,9 +332,6 @@ public class ProfileServer {
                 .replaceAll("=", ":")
                 .replaceAll(" ", "")
                 .replaceAll(";", "\n")
-                .replaceAll(",", "\n")
-                .replaceAll("{", "")
-                .replaceAll("}", "")
                 .split("\n");
         System.out.println("parts.size = " + parts.length);
         Map<String, String> result = new HashMap<>();
