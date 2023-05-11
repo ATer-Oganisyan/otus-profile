@@ -16,12 +16,17 @@ spec:
     spec:
       containers:
       - name: profile-service
-        image: arsenteroganisyan/profile-service:v3
+        image: arsenteroganisyan/profile-service:4
         ports:
         - containerPort: 8000
         env:
-          - name: HOST
+          - name: SERVER_SESSION_HOST
             valueFrom:
               configMapKeyRef:
                 name: config
                 key: session_server_host
+          - name: CRUD_HOST
+            valueFrom:
+              configMapKeyRef:
+                name: config
+                key: crud_host

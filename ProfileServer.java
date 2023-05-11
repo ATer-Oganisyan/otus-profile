@@ -29,9 +29,11 @@ public class ProfileServer {
     private static Map<String, Map<String, String>> sessions = new HashMap<>();
 
     public static void main(String[] args) throws Exception {
-        System.out.println("Profile service version: " + args[1]);
-        userCrudHostServiceHost = args[0];
-        sessionServiceHost = args[1];
+        System.out.println("Profile service version: " + args[2]);
+        userCrudHostServiceHost = args[1];
+        sessionServiceHost = args[0];
+        System.out.println("userCrudHostServiceHost: " + userCrudHostServiceHost);
+        System.out.println("sessionServiceHost: " + sessionServiceHost);
         HttpServer server = HttpServer.create(new InetSocketAddress(8000), 0);
         server.createContext("/", new MyHandler());
         server.setExecutor(null); // creates a default executor
