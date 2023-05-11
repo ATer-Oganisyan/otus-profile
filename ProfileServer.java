@@ -4,6 +4,7 @@ import java.io.*;
 import java.net.InetSocketAddress;
 import java.util.*;
 
+import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
@@ -148,9 +149,23 @@ public class ProfileServer {
 
     static private void routeGetUser(HttpExchange t) throws IOException {
         System.out.println("Route getUser");
-        String cookieString = String.join(";", t.getRequestHeaders().get("Cookie"));
+        Headers headers = t.getRequestHeaders();
+        System.out.println("headers = " + headers);
+        printLogs(headers.values());
+        List<String> headersList;
+        if (headers == null) {
+            System.out.println("headers = null");
+            headersList = new ArrayList<>();
+        } else {
+            System.out.println("headers.get");
+            headersList = headers.get("Cookie");
+        }
+        String cookieString = String.join(";", headersList);
+        System.out.println("cookieString = " + cookieString);
         Map<String, String> cookie = postToMap(new StringBuilder(cookieString));
+        System.out.println("cookie = " + cookie);
         String token = cookie.get("token");
+        System.out.println("token = " + token);
         String userId = queryToMap(t.getRequestURI().getQuery()).get("id");
         String r;
         String body = "token:" + token;
