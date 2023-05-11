@@ -121,13 +121,20 @@ public class ProfileServer {
 
     private static String getMd5(String input) {
         try {
+            System.out.println("getMd5 input = " + input);
+            System.out.println("MessageDigest md = MessageDigest.getInstance");
             MessageDigest md = MessageDigest.getInstance("MD5");
+            System.out.println("byte[] messageDigest = md.digest(input.getBytes());");
             byte[] messageDigest = md.digest(input.getBytes());
+            System.out.println("messageDigest = " + messageDigest);
             BigInteger no = new BigInteger(1, messageDigest);
+            System.out.println("BigInteger no = new BigInteger(1, messageDigest);");
             String hashtext = no.toString(16);
+            System.out.println("String hashtext = no.toString(16);");
             while (hashtext.length() < 32) {
                 hashtext = "0" + hashtext;
             }
+            System.out.println("hashtext = " + hashtext);
             return hashtext;
         }
         catch (NoSuchAlgorithmException e) {
@@ -138,7 +145,7 @@ public class ProfileServer {
 
     static private void routeGetUser(HttpExchange t) throws IOException {
         System.out.println("Route getUser");
-        String cookieString = String.join(";", t.getResponseHeaders().get("cookie"));
+        String cookieString = String.join(";", t.getRequestHeaders().get("cookie"));
         Map<String, String> cookie = postToMap(new StringBuilder(cookieString));
         String token = cookie.get("token");
         String userId = postToMap(buf(t.getRequestBody())).get("id");
