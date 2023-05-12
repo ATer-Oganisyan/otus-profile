@@ -53,6 +53,9 @@ public class ProfileServer {
             } else if ("/user/get".equals(path)) {
                 System.out.println("matched get");
                 routeGetUser(t);
+            } else if ("/current-user".equals(path)) {
+                System.out.println("matched current-user");
+                routeCurrentUser(t);
             } else if ("/user/create".equals(path)) {
                 System.out.println("matched session");
                 routeCreateUser(t);
@@ -224,6 +227,95 @@ public class ProfileServer {
             os.close();
             return;
         }
+
+        System.out.println("if (resp.statusCode() == 200) {");
+        HttpResponse<String> resp = getUserById(userId);
+        if (resp.statusCode() == 200) {
+            r = resp.body();
+            t.sendResponseHeaders(200, r.length());
+            OutputStream os = t.getResponseBody();
+            os.write(r.getBytes());
+            os.close();
+            return;
+        }
+
+        System.out.println("if (resp.statusCode() == 404) {");
+        if (resp.statusCode() == 404) {
+            r = "user is not found";
+            t.sendResponseHeaders(404, r.length());
+            OutputStream os = t.getResponseBody();
+            os.write(r.getBytes());
+            os.close();
+            return;
+        }
+
+        r = "internal server error";
+        t.sendResponseHeaders(500, r.length());
+        OutputStream os = t.getResponseBody();
+        os.write(r.getBytes());
+        os.close();
+        return;
+    }
+
+    static private void routeCurrentUser(HttpExchange t) throws IOException {
+        System.out.println("routeCurrentUser");
+        Headers headers = t.getRequestHeaders();
+        System.out.println("headers = " + headers);
+        printLogs(headers.values());
+        List<String> headersList;
+        if (headers == null) {
+            System.out.println("headers = null");
+            headersList = new ArrayList<>();
+        } else {
+            System.out.println("headers.get");
+            headersList = headers.get("Cookie");
+        }
+        String cookieString = String.join(";", headersList);
+        System.out.println("cookieString = " + cookieString);
+        Map<String, String> cookie = postToMap(new StringBuilder(cookieString));
+        System.out.println("cookie = " + cookie);
+        String token = cookie.get("token");
+        System.out.println("token = " + token);
+        String r;
+        String body = "token:" + token;
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(scheme + sessionServiceHost + "/session"))
+                .timeout(Duration.ofMinutes(1))
+                .header("Content-Type", "plain/text")
+                .POST(HttpRequest.BodyPublishers.ofString(body))
+                .build();
+        HttpResponse<String> response;
+        System.out.println("HttpResponse<String> response;");
+        try {
+            System.out.println("try");
+            response = client.send(request, BodyHandlers.ofString());
+            System.out.println("response = client.send(request, BodyHandlers.ofString());");
+        } catch (IOException e) {
+            System.out.println("IOException");
+            throw new RuntimeException();
+        } catch (InterruptedException e) {
+            System.out.println("InterruptedException");
+            throw new RuntimeException();
+        }
+
+        System.out.println("if (response.statusCode() == 403)");
+        if (response.statusCode() == 403) {
+            System.out.println("error:403");
+            r = "session is not found";
+            t.sendResponseHeaders(403, r.length());
+            OutputStream os = t.getResponseBody();
+            os.write(r.getBytes());
+            os.close();
+            return;
+        }
+
+        System.out.println("Map<String, String> userInfo = postToMap(new StringBuilder(response.body()));");
+        Map<String, String> userInfo = postToMap(new StringBuilder(response.body()));
+        System.out.println("session server response body: " + response.body());
+        System.out.println("role = " + userInfo.get("role"));
+        System.out.println("id = " + userInfo.get("id"));
+        System.out.println("role == admin: " + ("admin".equals(userInfo.get("role"))));
+        String userId = userInfo.get("id");
 
         System.out.println("if (resp.statusCode() == 200) {");
         HttpResponse<String> resp = getUserById(userId);
